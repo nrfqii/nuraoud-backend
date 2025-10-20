@@ -1,0 +1,42 @@
+# Gunakan image PHP terbaru yang sudah memiliki Alpine Linux (ukuran kecil)
+FROM php:8.2-fpm-alpine
+
+# Instal dependensi sistem yang dibutuhkan oleh Laravel
+RUN apk add --no-cache \
+    nginx \
+    composer \
+    mysql-client \
+    git \
+    supervisor \
+    php82-mysqli \
+    php82-pdo_mysql \
+    php82-pdo \
+    php82-xml \
+    php82-ctype \
+    php82-dom \
+    php82-mbstring \
+    php82-tokenizer \
+    php82-session \
+    php82-json \
+    php82-openssl \
+    php82-curl
+
+# Salin kode aplikasi ke dalam container
+WORKDIR /app
+COPY . /app
+
+# Atur permission
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
+
+# Jalankan command build dan start (Ini yang sebelumnya diisi manual)
+# Render akan menjalankan ini secara default pada container Docker
+
+# COMMAND YANG PENTING UNTUK LARAVEL DI RENDER (Jika menggunakan Docker)
+# Jalankan Composer Install dan Migrate saat Build
+RUN composer install --no-dev --optimize-autoloader && php artisan migrate --force
+
+# Expose port yang digunakan (port yang sama dengan $PORT Render)
+EXPOSE 8000
+
+# Perintah untuk menjalankan server
+CMD php artisan serve --host 0.0.0.0 --port 8000
